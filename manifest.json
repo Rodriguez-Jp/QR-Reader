@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "QR Reader",
+  "version": "1.0",
+  "description": "A simple extension to read QR codes on screen",
+  "icons": {
+    "128": "icon.png"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
