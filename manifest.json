@@ -3,6 +3,17 @@
   "name": "QR Reader",
   "version": "1.0",
   "description": "A simple extension to read QR codes on screen",
+  "host_permissions": ["https://*/*"],
+  "permissions": ["tabs", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*"],
+      "js": ["contentScript.js"]
+    }
+  ],
   "icons": {
     "128": "icon.png"
   },
