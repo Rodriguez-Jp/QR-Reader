@@ -1,7 +1,3 @@
-// const scanButton = document.getElementById("scan-button");
-
-// scanButton.addEventListener("click", beginScan);
-
 function beginScan() {
   let grayLayout = document.getElementById("gray-layout");
 
@@ -11,6 +7,16 @@ function beginScan() {
 
     document.body.appendChild(grayLayout);
   }
+
+  document.body.addEventListener("mousedown", getPosition);
 }
 
-beginScan();
+function getPosition(e) {
+  console.log(e);
+}
+
+chrome.runtime.onMessage.addListener(function (request) {
+  if (request.action === "scan") {
+    beginScan();
+  }
+});
