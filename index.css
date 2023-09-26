@@ -27,10 +27,3 @@ body {
   opacity: 0.8;
   cursor: pointer;
 }
-
-.scanModal {
-  height: 100vh;
-  width: 100vw;
-  background-color: #ccc;
-  opacity: 60%;
-}
