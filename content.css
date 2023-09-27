@@ -9,3 +9,7 @@
   opacity: 60%;
   cursor: crosshair;
 }
+
+.scan-rectangle {
+  z-index: 6000;
+}
