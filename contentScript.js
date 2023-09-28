@@ -4,16 +4,13 @@ const bodyWidth = document.body.getAttribute;
 let pageSize = document.body.getBoundingClientRect();
 
 function beginScan() {
-  let grayLayout = document.getElementById("gray-layout");
+  let grayLayoutRef = document.querySelector(".scan-modal");
 
-  console.log(grayLayout.id);
-
-  if (grayLayout.id === undefined) {
-    console.log("Layout working");
+  if (grayLayoutRef) {
     return;
   }
 
-  grayLayout = document.createElement("div");
+  let grayLayout = document.createElement("div");
   grayLayout.classList.add("scan-modal");
 
   let canvasElement = document.createElement("canvas");
