@@ -58,12 +58,13 @@ async function mouseUp(e) {
   e.preventDefault();
   e.stopPropagation();
 
+  const tab = getCurrentTab();
+
   console.log(height, width);
 
-  chrome.runtime.sendMessage({
-    action: "position",
-    info: { startX, startY, width, height },
-  });
+  getQr(tab, startX, startY, width, height);
+
+  console.log(finalURL);
 
   isDown = false;
 }
@@ -85,6 +86,26 @@ function mouseMove(e) {
   console.table(mouseX, mouseY, startX, startY, width, height);
 
   ctx.strokeRect(startX, startY, width, height);
+}
+
+function getQr(tab, left, top, width, height) {
+  chrome.tabs.captureVisibleTab(tab.windowId, { format: "png" }, (dataurl) => {
+    const qr = new Image();
+    qr.onload = () => {
+      const captureCanvasQr = document.createElement("canvas");
+      captureCanvasQr.width = width;
+      captureCanvasQr.height = height;
+      const ctx = captureCanvasQr.getContext("2d");
+
+      ctx.drawImage(qr, left, top, width, height, 0, 0, width, height);
+
+      const url = captureCanvasQr.toDataURL();
+      const qrReader = new QRCode();
+      qrReader.callback = (error, text) => {
+        return qrReader.decode(url);
+      };
+    };
+  });
 }
 
 chrome.runtime.onMessage.addListener(function (request) {

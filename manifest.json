@@ -4,15 +4,16 @@
   "version": "1.0",
   "description": "A simple extension to read QR codes on screen",
   "host_permissions": ["https://*/*"],
-  "permissions": ["tabs", "scripting", "https://*/*"],
+  "permissions": ["tabs", "scripting", "activeTab"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["https://*/*"],
       "css": ["content.css"],
-      "js": ["contentScript.js"]
+      "js": ["./node_modules/qrcode-reader/dist/index.js", "contentScript.js"]
     }
   ],
   "icons": {
