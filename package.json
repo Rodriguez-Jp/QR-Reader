@@ -1,5 +1,14 @@
 {
   "dependencies": {
     "qrcode-reader": "^1.0.4"
+  },
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode production --watch"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
   }
 }

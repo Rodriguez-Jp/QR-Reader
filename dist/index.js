@@ -1,0 +1,1 @@
+document.getElementById("scan-button").addEventListener("click",(async function(){const[e]=await chrome.tabs.query({active:!0,lastFocusedWindow:!0}),t=await chrome.tabs.sendMessage(e.id,{action:"scan"});console.log(t)}));
