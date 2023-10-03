@@ -1,4 +1,12 @@
-import QRCode from "qrcode-reader";
+async function createOffscreen() {
+  if (await chrome.offscreen.hasDocument()) return;
+
+  await chrome.offscreen.createDocument({
+    url: "../static/offscreen.html",
+    reason: ["DOM_PARSER"],
+    justification: "testing",
+  });
+}
 
 chrome.runtime.onMessage.addListener(async function (request) {
   const [tab] = await chrome.tabs.query({
@@ -6,31 +14,16 @@ chrome.runtime.onMessage.addListener(async function (request) {
     lastFocusedWindow: true,
   });
   if (request.action === "position") {
-    console.log("triggered!");
     const { startX, startY, width, height } = request.info;
-    const finalQr = getQr(tab, startX, startY, width, height);
-    console.log(finalQr, "patata");
+    const positionInfo = { tab, startX, startY, width, height };
+    chrome.runtime.sendMessage({
+      action: "getqr",
+      info: { positionInfo },
+    });
+
+    // console.log("triggered!");
+    // const { startX, startY, width, height } = request.info;
+    // const finalQr = getQr(tab, startX, startY, width, height);
+    // console.log(finalQr, "patata");
   }
 });
-
-function getQr(tab, left, top, width, height) {
-  chrome.tabs.captureVisibleTab(tab.windowId, { format: "png" }, (dataurl) => {
-    const qr = new Image();
-    qr.src = dataurl;
-    qr.onload = () => {
-      const captureCanvasQr = document.createElement("canvas");
-      captureCanvasQr.width = width;
-      captureCanvasQr.height = height;
-      const ctx = captureCanvasQr.getContext("2d");
-
-      ctx.drawImage(qr, left, top, width, height, 0, 0, width, height);
-
-      const url = captureCanvasQr.toDataURL();
-      const qrReader = new QRCode();
-      qrReader.callback = (error) => {
-        if (error) console.log(error);
-        return qrReader.decode(url);
-      };
-    };
-  });
-}
