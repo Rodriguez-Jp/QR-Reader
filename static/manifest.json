@@ -4,7 +4,7 @@
   "version": "1.0",
   "description": "A simple extension to read QR codes on screen",
   "host_permissions": ["https://*/*", "http://*/*", "<all_urls>"],
-  "permissions": ["tabs", "scripting", "activeTab"],
+  "permissions": ["tabs", "scripting", "activeTab", "offscreen"],
 
   "background": {
     "service_worker": "background.js"

@@ -1,16 +1,17 @@
 import QRCode from "qrcode-reader";
 
-chrome.runtime.onMessage.addListner(async (request) => {
-  if (request.action !== "getqr") {
-    return;
+alert("loaded!");
+chrome.runtime.onMessage.addListener((request) => {
+  if (request.target === "offscreen") {
+    alert("received!");
+
+    const { tab, startX, startY, width, height } = request.data.info;
+
+    console.log(getQr(tab, startX, startY, width, height));
   }
-
-  const { tab, startX, startY, width, height } = request.info;
-
-  console.log(await getQr(tab, startX, startY, width, height));
 });
 
-async function getQr(tab, left, top, width, height) {
+function getQr(tab, left, top, width, height) {
   chrome.tabs.captureVisibleTab(tab.windowId, { format: "png" }, (dataurl) => {
     const qr = new Image();
     qr.src = dataurl;

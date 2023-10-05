@@ -2,6 +2,12 @@ let canvasOffset, offsetX, offsetY, startX, startY, ctx, width, height;
 let isDown = false;
 let pageSize = document.body.getBoundingClientRect();
 
+chrome.runtime.onMessage.addListener(function (request) {
+  if (request.action === "scan") {
+    beginScan();
+  }
+});
+
 function beginScan() {
   let grayLayoutRef = document.querySelector(".scan-modal");
 
@@ -58,13 +64,12 @@ async function mouseUp(e) {
   e.preventDefault();
   e.stopPropagation();
 
-  console.log(height, width);
-
+  console.log("Hola!");
   chrome.runtime.sendMessage({
     action: "position",
     info: { startX, startY, width, height },
   });
-
+  console.log("pase!");
   isDown = false;
 }
 
@@ -82,13 +87,5 @@ function mouseMove(e) {
   width = mouseX - startX;
   height = mouseY - startY;
 
-  console.table(mouseX, mouseY, startX, startY, width, height);
-
   ctx.strokeRect(startX, startY, width, height);
 }
-
-chrome.runtime.onMessage.addListener(function (request) {
-  if (request.action === "scan") {
-    beginScan();
-  }
-});
