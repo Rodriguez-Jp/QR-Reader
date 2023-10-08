@@ -27,3 +27,8 @@ body {
   opacity: 0.8;
   cursor: pointer;
 }
+
+#url-text {
+  font-size: large;
+  font-weight: 700;
+}

@@ -59,14 +59,12 @@ function mouseDown(e) {
   startX = parseInt(e.clientX - offsetX);
   startY = parseInt(e.clientY - offsetY);
 
+  chrome.runtime.sendMessage({
+    action: "hidePopup",
+  });
+
   isDown = true;
 }
-
-chrome.runtime.onMessage.addListener(function (request) {
-  if (request.action === "dataurl") {
-    console.log("hello!");
-  }
-});
 
 async function mouseUp(e) {
   e.preventDefault();
@@ -83,16 +81,13 @@ async function mouseUp(e) {
       console.log(response);
 
       getQr(startX, startY, width, height, response.url, (qr) => {
-        console.log(qr.data);
+        chrome.runtime.sendMessage({ action: "finalQR", data: qr.data });
       });
+
+      document.querySelector(".scan-modal").remove();
     }
   );
 
-  // chrome.runtime.onMessage.addListener(function (request) {
-  //   if (request.action === "dataurl") {
-  //     console.log(getQr(startX, startY, width, height, request.data));
-  //   }
-  // });
   isDown = false;
 }
 
@@ -114,6 +109,14 @@ function mouseMove(e) {
 }
 
 function getQr(left, top, width, height, dataurl, callback) {
+  console.log(dataurl);
+  if (dataurl === null) {
+    document.querySelector(".scan-modal").remove();
+    chrome.runtime.sendMessage({
+      action: "error",
+      data: "there was an error",
+    });
+  }
   const qr = new Image();
   qr.src = dataurl;
   qr.onload = () => {
@@ -127,7 +130,20 @@ function getQr(left, top, width, height, dataurl, callback) {
     const imageData = ctx.getImageData(0, 0, width, height);
     const qrDecoded = jsQR(imageData.data, width, height);
 
+    if (qrDecoded === null) {
+      chrome.runtime.sendMessage({
+        action: "error",
+        data: "there was an error",
+      });
+      return;
+    }
     callback(qrDecoded);
+  };
+  qr.onerror = () => {
+    document.querySelector(".scan-modal").remove();
+    chrome.runtime.sendMessage({
+      action: "error",
+    });
   };
 }
 
