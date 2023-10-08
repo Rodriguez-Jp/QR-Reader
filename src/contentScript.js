@@ -1,3 +1,5 @@
+import jsQR from "jsqr";
+
 let canvasOffset, offsetX, offsetY, startX, startY, ctx, width, height;
 let isDown = false;
 let pageSize = document.body.getBoundingClientRect();
@@ -60,16 +62,37 @@ function mouseDown(e) {
   isDown = true;
 }
 
+chrome.runtime.onMessage.addListener(function (request) {
+  if (request.action === "dataurl") {
+    console.log("hello!");
+  }
+});
+
 async function mouseUp(e) {
   e.preventDefault();
   e.stopPropagation();
 
-  console.log("Hola!");
-  chrome.runtime.sendMessage({
-    action: "position",
-    info: { startX, startY, width, height },
-  });
-  console.log("pase!");
+  chrome.runtime.sendMessage(
+    null,
+    {
+      action: "capture",
+      info: { startX, startY, width, height },
+    },
+    null,
+    (response) => {
+      console.log(response);
+
+      getQr(startX, startY, width, height, response.url, (qr) => {
+        console.log(qr.data);
+      });
+    }
+  );
+
+  // chrome.runtime.onMessage.addListener(function (request) {
+  //   if (request.action === "dataurl") {
+  //     console.log(getQr(startX, startY, width, height, request.data));
+  //   }
+  // });
   isDown = false;
 }
 
@@ -89,3 +112,87 @@ function mouseMove(e) {
 
   ctx.strokeRect(startX, startY, width, height);
 }
+
+function getQr(left, top, width, height, dataurl, callback) {
+  const qr = new Image();
+  qr.src = dataurl;
+  qr.onload = () => {
+    const captureCanvasQr = document.createElement("canvas");
+    captureCanvasQr.width = width;
+    captureCanvasQr.height = height;
+    const ctx = captureCanvasQr.getContext("2d");
+
+    ctx.drawImage(qr, left, top, width, height, 0, 0, width, height);
+
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const qrDecoded = jsQR(imageData.data, width, height);
+
+    callback(qrDecoded);
+  };
+}
+
+// function getQr(
+//   tab: chrome.tabs.Tab,
+//   left: number,
+//   top: number,
+//   width: number,
+//   height: number,
+//   windowWidth: number
+// ) {
+//   chrome.tabs.captureVisibleTab(tab.windowId, { format: "png" }, (dataUrl) => {
+//     contentTab = tab;
+//     const qr = new Image();
+//     qr.src = dataUrl;
+//     qr.onload = () => {
+//       const devicePixelRatio = qr.width / windowWidth;
+//       const captureCanvas = document.createElement("canvas");
+//       captureCanvas.width = width * devicePixelRatio;
+//       captureCanvas.height = height * devicePixelRatio;
+//       const ctx = captureCanvas.getContext("2d");
+//       if (!ctx) {
+//         return;
+//       }
+//       ctx.drawImage(
+//         qr,
+//         left * devicePixelRatio,
+//         top * devicePixelRatio,
+//         width * devicePixelRatio,
+//         height * devicePixelRatio,
+//         0,
+//         0,
+//         width * devicePixelRatio,
+//         height * devicePixelRatio
+//       );
+//       const url = captureCanvas.toDataURL();
+//       const qrReader = new QRCode();
+//       qrReader.callback = (error) => {
+//         if (error) {
+//           console.error(error);
+//           const qrImageData = ctx.getImageData(
+//             0,
+//             0,
+//             captureCanvas.width,
+//             captureCanvas.height
+//           );
+//           const jsQrCode = jsQR(
+//             qrImageData.data,
+//             captureCanvas.width,
+//             captureCanvas.height
+//           );
+//           if (jsQrCode) {
+//             getTotp(jsQrCode.data);
+//           } else {
+//             if (!contentTab || !contentTab.id) {
+//               return;
+//             }
+//             const id = contentTab.id;
+//             chrome.tabs.sendMessage(id, { action: "errorqr" });
+//           }
+//         } else {
+//           getTotp(text.result);
+//         }
+//       };
+//       qrReader.decode(url);
+//     };
+//   });
+// }
