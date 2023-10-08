@@ -5,7 +5,6 @@ module.exports = {
     index: "./src/index.js",
     background: "./src/background.js",
     contentScript: "./src/contentScript.js",
-    offscreen: "./src/offscreen.js",
   },
 
   plugins: [
