@@ -4,6 +4,13 @@ let canvasOffset, offsetX, offsetY, startX, startY, ctx, width, height;
 let isDown = false;
 let pageSize = document.body.getBoundingClientRect();
 
+function throwError() {
+  chrome.runtime.sendMessage({
+    action: "error",
+    data: "there was an error",
+  });
+}
+
 chrome.runtime.onMessage.addListener(function (request) {
   if (request.action === "scan") {
     beginScan();
@@ -31,7 +38,6 @@ function beginScan() {
   let canvas = document.getElementById("canvas");
   ctx = canvas.getContext("2d");
 
-  ctx.strokeStyle = "green";
   ctx.lineWidth = 2;
 
   canvasOffset = canvas.getBoundingClientRect();
@@ -78,8 +84,6 @@ async function mouseUp(e) {
     },
     null,
     (response) => {
-      console.log(response);
-
       getQr(startX, startY, width, height, response.url, (qr) => {
         chrome.runtime.sendMessage({ action: "finalQR", data: qr.data });
       });
@@ -109,40 +113,38 @@ function mouseMove(e) {
 }
 
 function getQr(left, top, width, height, dataurl, callback) {
-  console.log(dataurl);
   if (dataurl === null) {
     document.querySelector(".scan-modal").remove();
-    chrome.runtime.sendMessage({
-      action: "error",
-      data: "there was an error",
-    });
+    throwError();
   }
   const qr = new Image();
   qr.src = dataurl;
   qr.onload = () => {
-    const captureCanvasQr = document.createElement("canvas");
-    captureCanvasQr.width = width;
-    captureCanvasQr.height = height;
-    const ctx = captureCanvasQr.getContext("2d");
+    try {
+      const captureCanvasQr = document.createElement("canvas");
+      captureCanvasQr.width = width;
+      captureCanvasQr.height = height;
+      const ctx = captureCanvasQr.getContext("2d");
 
-    ctx.drawImage(qr, left, top, width, height, 0, 0, width, height);
+      ctx.drawImage(qr, left, top, width, height, 0, 0, width, height);
 
-    const imageData = ctx.getImageData(0, 0, width, height);
-    const qrDecoded = jsQR(imageData.data, width, height);
+      const imageData = ctx.getImageData(0, 0, width, height);
 
-    if (qrDecoded === null) {
-      chrome.runtime.sendMessage({
-        action: "error",
-        data: "there was an error",
-      });
-      return;
+      try {
+      } catch (error) {}
+      const qrDecoded = jsQR(imageData.data, width, height);
+
+      if (qrDecoded === null) {
+        throwError();
+        return;
+      }
+      callback(qrDecoded);
+    } catch (error) {
+      throwError();
     }
-    callback(qrDecoded);
   };
   qr.onerror = () => {
     document.querySelector(".scan-modal").remove();
-    chrome.runtime.sendMessage({
-      action: "error",
-    });
+    throwError();
   };
 }
