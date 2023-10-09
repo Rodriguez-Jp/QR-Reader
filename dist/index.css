@@ -31,4 +31,7 @@ body {
 #url-text {
   font-size: large;
   font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }

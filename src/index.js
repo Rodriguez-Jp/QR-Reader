@@ -11,12 +11,14 @@ async function sendScan() {
   chrome.tabs.sendMessage(tab.id, { action: "scan" });
 }
 
+//Hide popup while scanning
 chrome.runtime.onMessage.addListener(function (request) {
   if (request.action === "hidePopup") {
     document.body.style.display = "none";
   }
 });
 
+//Gets the QR and display it in the popup
 chrome.runtime.onMessage.addListener(function (request) {
   if (request.action === "finalQR") {
     document.body.style.display = "block";
