@@ -1,0 +1,1 @@
+chrome.runtime.onMessage.addListener((function(e,n,r){if("capture"===e.action)return chrome.tabs.captureVisibleTab({format:"png"},(e=>{r({url:e})})),console.log("Sent"),!0}));

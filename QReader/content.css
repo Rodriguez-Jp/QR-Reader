@@ -1,0 +1,15 @@
+.scan-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background-color: #ccc;
+  z-index: 5060;
+  opacity: 60%;
+  cursor: crosshair;
+}
+
+.scan-rectangle {
+  z-index: 6000;
+}
